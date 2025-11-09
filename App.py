@@ -1,43 +1,43 @@
 import pygame
-from pygame.locals import *
+import sys
+import random
+from Circle import Circle
 
-class App:
-    def __init__(self):
-        self._running = True
-        self._display_surf = None
-        self.size = self.weight, self.height = 640, 400
 
-    def on_init(self):
-        pygame.init()
-        self._display_surf = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self._running = True
+pygame.init()
+WIDTH, HEIGHT = 1080, 720
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("XXX")
+WHITE = (255, 255, 255)
 
-    def on_event(self, event):
+
+circles = []
+for i in range(1):
+    c = Circle()
+    c.id = i
+    circles.append(c)
+
+
+running = True
+while running:
+    for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            self._running = False
+            running = False
+    
+    
 
-    def on_loop(self):
-        pass
-
-    def on_render(self):
-        pass
-
-    def on_cleanup(self):
-        pygame.quit()
-
-    def on_execute(self):
-        if self.on_init() == False:
-            self._running = False
-
-        while (self._running):
-            for event in pygame.event.get():
-                self.on_event(event)
-            self.on_loop()
-            self.on_render()
-        self.on_cleanup()
+    screen.fill(WHITE)
+    for c in circles:
+        print("vor dem update")
+        print(f"id: {c.id} Farbe: {c.color} x: {c.x_0} y: {c.y_0}")
+        pygame.draw.circle(screen, c.color, (c.x_0, c.x_0), c.radius)
+        pygame.display.flip()
+        c.update()
+        print(" ")
+        print("nach dem update")
+        print(f"id: {c.id} Farbe: {c.color} x: {c.x_0} y: {c.y_0}")
+pygame.quit()
+sys.exit()
 
 
 
-class Object:
-    def __init__(self):
-        self._objects = []
