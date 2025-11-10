@@ -1,5 +1,6 @@
 import random
 import math
+import pygame
 
 WIDTH = 1080
 HEIGHT = 720
@@ -7,45 +8,45 @@ HEIGHT = 720
 class Circle:
     def __init__(self):
         self.id = None
-        self.radius = self.radius()
-        self.x_0, self.y_0 = self.start_position(self.radius)
-        self.v_x = random.uniform(-0.001, 0.001)
-        self.v_y = random.uniform(-0.001, 0.001)
-        #self.a_0_x, self.a_0_y = self.acceleration()
-        self.color = self.color()
+        self.r = random.uniform(15, 45)
+        self.pos = pygame.math.Vector2(
+            random.uniform(self.r, WIDTH - self.r),
+            random.uniform(self.r, HEIGHT - self.r))
+        self.v = pygame.math.Vector2(
+            random.uniform(-50, 50),
+            random.uniform(-50, 50)
+        )
+        self.a = pygame.math.Vector2(
+            random.uniform(-1, 1),
+            random.uniform(-1, 1)
+        )
+        self.color = self._random_color()
 
-    def radius(self) -> float:
-        return random.uniform(5, 50)
 
-    def start_position(self, r: float) -> tuple[float, float]:
-        x = random.uniform(r, WIDTH - r)
-        y = random.uniform(r, HEIGHT - r)
-        return x,y
+    def _random_color(self):
+        return (
+            # to-do implement color palette 
+            random.uniform(0, 240), 
+            random.uniform(0, 240), 
+            random.uniform(0, 240)
+            )
+
+    def draw(self):
+        pass
+
+    def update(self, dt):
+        self.pos[0] +=  self.v[0]*dt
+        self.pos[1] +=  self.v[1]*dt
+        self.check_walls()
+        self.check_balls()
+
     
-    def acceleration(self) -> float:
-        a_x = random.uniform(-1, 1)
-        a_y = random.uniform(-1, 1)
-        return a_x,a_y
-    
-    def trajectory(self, a_x, a_y, v_x, v_y, t):
-        x = 0.5*a_x*t*t+v_x*t
-        y = 0.5*a_y*t*t+v_y*t
-        return x, y
+    def check_walls(self):
+        # simple collision check -- advanced check on todo
+        if self.pos[0] - self.r < 0 or self.pos[0] + self.r > WIDTH:
+            self.v[0] *= -1
+        if self.pos[1] - self.r < 0 or self.pos[1] + self.r > HEIGHT:
+            self.v[1] *= -1
 
-    def color(self) -> tuple:
-        return (random.uniform(5, 255), random.uniform(5, 255), random.uniform(5, 255))
-
-    def update(self):
-        angle = random.uniform(0, 2 * math.pi)
-        self.v_x = math.cos(angle) * self.x_0
-        self.v_y = math.sin(angle) * self.y_0
-        self.x_0 += self.v_x
-        self.y_0 += self.v_y
-
-        
-        
-
-        if self.x_0 - self.radius < 0 or self.x_0 + self.radius > WIDTH:
-            self.v_x *= -1  # Richtung umdrehen
-        if self.y_0 - self.radius < 0 or self.y_0 + self.radius > HEIGHT:
-            self.v_y *= -1
+    def check_balls(self):
+        pass
