@@ -1,12 +1,15 @@
 import pygame
 import sys
 from Circle import Circle
+from GameConfigs import GameConfigs
 
 pygame.init()
-WIDTH, HEIGHT = 1080, 720
-VERBOSE = False
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("XXX")
+
+
+
+cfg = GameConfigs()
+screen = pygame.display.set_mode((cfg.width, cfg.height))
+pygame.display.set_caption(cfg.caption)
 clock = pygame.time.Clock()
 
 WHITE = (255, 255, 255)
@@ -21,19 +24,33 @@ def handle_events():
 def printer(radius, position, velocity):
     pass
 
-def update_all(objects, dt):
+def update_all(objects, dt: float):
     for obj in objects:
-        obj.update(dt)
+        obj.update_position(dt)
+        obj.check_walls()
+        #obj.check_balls()
+        check_balls(circles)
+
+def check_balls(circles: list):
+    for n in range(len(circles)-1):
+        dx = circles[n+1].pos[0] - circles[n].pos[0]
+        dy = circles[n+1].pos[1] - circles[n].pos[1]
+
+        distance_sq = dx * dx + dy * dy
+        radius_sum = circles[n+1].r + circles[n+1].r
+        if distance_sq <= radius_sum * radius_sum:
+            print("boing!")
+            print(" ")
+    
+
+
+def draw_line():
+    pass
+
 
 def draw_all(objects, screen):
     screen.fill(WHITE)
-    font = pygame.font.Font(None, 34)  # 'None' = default pygame font
     for obj in objects:
-        if VERBOSE:
-            text_surface = font.render(f"r: {round(obj.r, 3)}\n pos: ({round(obj.pos[0])} | {round(obj.pos[1])})", True, BLACK)  # text, antialias, color
-            text_x = 20
-            text_y = 20
-            screen.blit(text_surface, (text_x, text_y))
         pygame.draw.circle(screen, obj.color, (obj.pos[0], obj.pos[1]), obj.r)
     pygame.display.flip()
     
@@ -41,7 +58,7 @@ def draw_all(objects, screen):
 dt = clock.tick(140) / 1000.0
 
 circles = []
-for i in range(10):
+for i in range(cfg.num_of_circles):
     c = Circle()
     c.id = i
     circles.append(c)
