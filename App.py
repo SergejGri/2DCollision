@@ -24,24 +24,37 @@ def handle_events():
 def printer(radius, position, velocity):
     pass
 
-def update_all(objects, dt: float):
-    for obj in objects:
-        obj.update_position(dt)
-        obj.check_walls()
-        #obj.check_balls()
-        check_balls(circles)
 
-def check_balls(circles: list):
-    for n in range(len(circles)-1):
-        dx = circles[n+1].pos[0] - circles[n].pos[0]
-        dy = circles[n+1].pos[1] - circles[n].pos[1]
+def update_all(circles: object, dt: float):
+    for c in circles:
+        c.update_position(dt)
+        c.check_walls()
+    collision_handling(circles)
 
-        distance_sq = dx * dx + dy * dy
-        radius_sum = circles[n+1].r + circles[n+1].r
-        if distance_sq <= radius_sum * radius_sum:
-            print("boing!")
-            print(" ")
-    
+
+def colliding(c1: object, c2: object) -> bool:
+    dx1 = c2.x1 - c1.x1
+    dx2 = c2.x2 - c1.x2
+    r_sum = c2.r + c1.r
+    dist_square = dx1 * dx1 + dx2 * dx2
+    return dist_square <= r_sum * r_sum
+
+
+def collision_handling(circles: list, rho: float):
+    if rho is None:
+        rho = 1.0
+
+    n = len(circles)
+    for i in range(n):
+        for j in range(i+1, n):
+            c1 = circles[i]
+            c2 = circles[j]
+            if colliding(c1, c2):
+                calc_collision(c1, c1, rho)
+
+
+def calc_collision(circle1: object, circle2: object, rho: float) -> None:
+    pass
 
 
 def draw_line():
@@ -51,7 +64,7 @@ def draw_line():
 def draw_all(objects, screen):
     screen.fill(WHITE)
     for obj in objects:
-        pygame.draw.circle(screen, obj.color, (obj.pos[0], obj.pos[1]), obj.r)
+        pygame.draw.circle(screen, obj.color, (obj.x1, obj.x2), obj.r)
     pygame.display.flip()
     
 
