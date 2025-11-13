@@ -13,17 +13,17 @@ class Circle:
         self.WIDTH = GameConfigs.width
         self.HEIGHT = GameConfigs.height
         self.r = random.uniform(15, 45)
-        self.pos = pygame.math.Vector2(
-            random.uniform(self.r, self.WIDTH - self.r),
-            random.uniform(self.r, self.HEIGHT - self.r))
-        self.v = pygame.math.Vector2(
-            random.uniform(-50, 50),
-            random.uniform(-50, 50)
-        )
-        self.a = pygame.math.Vector2(
-            random.uniform(-1, 1),
-            random.uniform(-1, 1)
-        )
+        self.m = random.uniform(1, 20)
+
+        self.x1 = random.uniform(self.r, self.WIDTH - self.r)
+        self.x2 = random.uniform(self.r, self.WIDTH - self.r)
+
+        self.v1 = random.uniform(-50, 50)
+        self.v2 = random.uniform(-50, 50)
+
+        self.a1 = random.uniform(-1, 1)
+        self.a2 = random.uniform(-1, 1)
+
         self.color = self._random_color()
         self.neighbours = []
 
@@ -40,17 +40,13 @@ class Circle:
         pass
 
     def update_position(self, dt: float) -> None:
-        self.pos[0] +=  self.v[0]*dt
-        self.pos[1] +=  self.v[1]*dt
+        self.x1 +=  self.v1*dt
+        self.x2 +=  self.v2*dt
 
     
-    def check_walls(self):
+    def check_walls():
         # simple collision check -- advanced check on todo
-        if self.pos[0] - self.r < 0 or self.pos[0] + self.r > self.WIDTH:
-            self.v[0] *= -1
-        if self.pos[1] - self.r < 0 or self.pos[1] + self.r > self.HEIGHT:
-            self.v[1] *= -1
-
-    def check_balls(self, other: list):
-        # nearest neighbor check
-        dist = math.dist((other[1], self.pos[1]) (other[0], self.pos[0]))
+        if self.x1 - self.r < 0 or self.x1 + self.r > self.WIDTH:
+            self.v1 *= -1
+        if self.x2 - self.r < 0 or self.x2+ self.r > self.HEIGHT:
+            self.v2 *= -1
