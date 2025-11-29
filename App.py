@@ -6,22 +6,17 @@ from Circle import Circle
 from GameConfigs import GameConfigs
 
 pygame.init()
-cfg = GameConfigs()
-screen = pygame.display.set_mode((cfg.width, cfg.height))
-pygame.display.set_caption(cfg.caption)
-font = pygame.font.SysFont(cfg.font, cfg.font_size)
+
+screen = pygame.display.set_mode((GameConfigs.width, GameConfigs.height))
+pygame.display.set_caption(GameConfigs.caption)
+font = pygame.font.SysFont(GameConfigs.font, GameConfigs.font_size)
 
 clock = pygame.time.Clock()
 counter = 0
-rho = cfg.rho
-
-HEIGHT = cfg.height
-WIDTH = cfg.width
+rho = GameConfigs.rho
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-GREY = (245, 245, 245)
-
 
 
 def handle_events():
@@ -32,18 +27,24 @@ def handle_events():
 
 
 def update_all(circles: object, dt: float):
-    for c in circles:
-        c.update_position(dt)
-        c.check_walls()
+    sub_step = dt / GameConfigs.sub_steps
+    for _ in range(GameConfigs.sub_steps):
+        for c in circles:
+            c.update_position(sub_step)
+            c.check_walls()
+    
     collision_handling(circles)
 
 
 def colliding(c1: object, c2: object) -> bool:
+    r_sum = c2.r + c1.r
+    return _dist_square(c1, c2) <= r_sum * r_sum
+
+
+def _dist_square(c1: object, c2: object) -> float:
     dx = c2.x - c1.x
     dy = c2.y - c1.y
-    r_sum = c2.r + c1.r
-    dist_square = dx * dx + dy * dy
-    return dist_square <= r_sum * r_sum
+    return dx * dx + dy * dy
 
 
 def collision_handling(circles: list):
@@ -56,37 +57,53 @@ def collision_handling(circles: list):
             if colliding(c1, c2):
                 counter += 1
                 calc_collision(c1, c2, rho)
-    update_position(circles, dt)
-
-
-def update_position(circle: object, dt: float):
-    for i, c in enumerate(circles):
-        c.x +=  c.vx*dt
-        c.y +=  c.vy*dt
 
 
 def calc_collision(circle1: object, circle2: object, rho: float) -> None:
     c1, c2 = circle1, circle2
-    m1, m2 = c1.m, c2.m
-    M = c1.m + c2.m
     
     dx = c2.x - c1.x
     dy = c2.y - c1.y
     dist = math.hypot(dx, dy)
-    if dist <= 1e-5:
+
+    if dist == 0:
         return
     
     nx = dx / dist
     ny = dy / dist
     
+    overlap = (c1.r + c2.r) - dist
+
+    if overlap > 0:
+        _fix_overlap(c1, c2, nx, ny, overlap)
+    _apply_impulse(c1, c2, nx, ny, rho)
+
+
+def _fix_overlap(c1: object, c2: object, nx: float, ny: float, overlap: float) -> None:
+    move_x = nx * (overlap / 2.0)
+    move_y = ny * (overlap / 2.0)
+
+    c1.x -= move_x
+    c1.y -= move_y
+    c2.x += move_x
+    c2.y += move_y
+
+
+def _apply_impulse(c1: object, c2: object, nx: float, ny: float, rho: float) -> None:
     # A dot product with a unit vector gives a scalar component along 
     # that direction (m/s or px/s).
+
+    # relative velocity
     rel_vx = c1.vx - c2.vx
     rel_vy = c1.vy - c2.vy
+
     vn = rel_vx * nx + rel_vy * ny
+    # if normal velocity greater 0 -> circles moving opposite direction
+    if vn > 0:
+        return
 
+    m1, m2 = c1.m, c2.m
     j = -(1.0 + rho) * vn / (1.0 / m1 + 1.0 / m2)
-
     impulse_x = j * nx
     impulse_y = j * ny
 
@@ -96,32 +113,40 @@ def calc_collision(circle1: object, circle2: object, rho: float) -> None:
     c2.vy -= impulse_y / m2
 
 
-def draw_all(objects, screen):
-    screen.fill(GREY)
+def draw_all(objects: list, screen) -> None:
+    screen.fill(GameConfigs.background_color)
     for obj in objects:
         pygame.draw.circle(screen, obj.color, (obj.x, obj.y), obj.r)
     screen.blit(printer(), (30, 30))
     pygame.display.flip()
     
 
-def create_circles(circles):
-    for i in range(cfg.num_of_circles):
-        c = Circle()
-        c.id = i
-        if i != 0 and overlapping(c, circles): 
-                c.x, c.y = rdm_except(c)
-        circles.append(c)
+def create_circles(circles: list) -> list:
+    max_attempts = 500
+    while len(circles) < GameConfigs.num_of_circles:
+        created = False
+        attempts = 0
+        while not created and attempts < max_attempts:
+            new_circle = Circle()
+            overlap = False
+            for other in circles:
+                dx = new_circle.x - other.x
+                dy = new_circle.y - other.y
+                if dx * dx + dy * dy < (new_circle.r + other.r + 5)**2:
+                    overlap = True
+                    break
+            
+            if not overlap:
+                circles.append(new_circle)
+                created = True
+            else:
+                attempts += 1
+        
+        if not created:
+            print("Seems like the number of circles is to high...")
+            break
+
     return circles
-
-
-def rdm_except(c):
-    initial_x = c.x
-    initial_y = c.y
-    while True:
-        c.x = random.uniform(c.r, c.WIDTH - c.r)
-        c.y = random.uniform(c.r, c.HEIGHT - c.r)
-        if c.x * 2 > initial_x and c.y * 2 > initial_y:
-            return c.x, c.y
 
 
 def overlapping(c, circles) -> bool:
@@ -140,15 +165,24 @@ def check_direction():
 
 def printer():
     text = font.render(f"Count: {counter}", True, BLACK)
+    #text = font.render(f"Count: {counter}", True, BLACK)
     return text
 
 
-dt = clock.tick(140) / 1000.0
+def printer2(base_fn):
+    def enhanced_fn(*args):
+        text = text
+        text = font.render(f"Count: {counter}", True, BLACK)
+        return text
+
+
+
 circles: list[Circle] = []
 create_circles(circles)
 
 running = True
 while running:
+    dt = clock.tick(GameConfigs.fps) / 1000.0
     running = handle_events()
     draw_all(circles, screen)
     update_all(circles, dt)
