@@ -3,15 +3,6 @@
 This project is a simple 2D physics simulation built with Python and Pygame (work and progress). I created this repository for fun and to learn the basics of collision detection and resolution.
 
 
-
-## Features
-
-* **Elastic Collisions:** Circles bounce off each other realistically.
-* **Screen Boundary Detection:** Objects stay inside the window and bounce off the walls.
-* **Clean OOP Design:** Each part of the simulation is separated into its own class for better readability.
-* **Configurable Settings:** Easily change the window size or colors in the configuration files.
-
-
 ## Project Structure
 
 * `main.py`: The main entry point.
