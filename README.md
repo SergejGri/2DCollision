@@ -1,39 +1,41 @@
-This repository provides a simple 2D physics simulation in Python and Pygame.
+# 2D Collision Simulation
 
-Below is a complete documentation structure you can use for your repository.
-2D Collision Simulation
+This project is a simple 2D physics simulation built with Python and Pygame (work and progress). I created this repository for fun and to learn the basics of collision detection and resolution.
 
-This project is a simple 2D collision simulation (work in progress). It was built for fun and to learn how physics and collision detection work in a digital space.
-Features
 
-Circle Collisions: Circles detect when they hit each other and bounce back realistically.
 
-Wall Bouncing: Circles stay inside the window by bouncing off the screen edges.
+## Features
 
-### Project Structure
+* **Elastic Collisions:** Circles bounce off each other realistically.
+* **Screen Boundary Detection:** Objects stay inside the window and bounce off the walls.
+* **Clean OOP Design:** Each part of the simulation is separated into its own class for better readability.
+* **Configurable Settings:** Easily change the window size or colors in the configuration files.
 
-main.py: entry point.
 
-App.py: This file manages the game loop. it handles events, updates the logic, and draws everything on the screen.
+## Project Structure
 
-Circle.py: This file contains the Circle class. Definition of movement and collision checks.
+* `main.py`: The main entry point.
+* `App.py`: Manages the application logic and the game loop.
+* `Circle.py`: Defines the Circle class, movement, and collision logic.
+* `GameConfigs.py`: Stores window dimensions and simulation settings.
+* `Colors.py`: Contains a list of RGB color constants.
 
-Colors.py: A simple file to store RGB color values.
+## Installation and Usage
 
-GameConfigs.py: Contains settings like screen size and physics constants.
+1. **Clone the repository:**
+   git clone https://github.com/SergejGri/2DCollision.git
+   cd 2DCollision
 
-### Requirements
+2. **Install requirements:**
+   Make sure you have Pygame installed:
+   pip install pygame
 
-Python 3.x
+3. **Run the simulation:**
+   python main.py
 
-Pygame library
 
-### Steps
+## Future Improvements
 
-Clone this repository to your local machine.
-
-Install the Pygame library by running:
-pip install pygame
-
-Start the project by running the main file:
-python main.py
+* Add different shapes.
+* Implement gravity or friction settings.
+* Add a user interface to spawn circles with a mouse click.
